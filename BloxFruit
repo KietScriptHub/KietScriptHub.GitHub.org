@@ -1,0 +1,121 @@
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+ 
+-- Tạo ImageButton
+local imageButton = Instance.new("ImageButton")
+imageButton.Size = UDim2.new(0, 50, 0, 50)
+imageButton.Position = UDim2.new(0, 30, 0, 50)
+imageButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- Màu mặc định (có thể thay đổi nếu cần)
+imageButton.Image = "rbxthumb://type=Asset&id=74221091260844&w=420&h=420"  -- Đường dẫn hình ảnh ID
+imageButton.Parent = screenGui
+ 
+-- Tạo Frame (Khung)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 150, 0, 200)
+frame.Position = UDim2.new(0, 100, 0, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.new(0, 1, 0)
+frame.Visible = false  -- Khung ẩn đi ban đầu
+frame.Parent = screenGui
+ 
+local TextLabel = Instance.new("TextLabel")
+ 
+TextLabel.Parent = frame
+TextLabel.Size = UDim2.new(0, 150, 0, 40)
+TextLabel.Position = UDim2.new(0, 0, 0, 0)
+TextLabel.TextColor3 = Color3.new(0, 1, 0)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Text = "Kiet Script v3"
+TextLabel.Font = Enum.Font.SourceSans
+TextLabel.TextSize = 30
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 150, 0, 50)
+button.Position = UDim2.new(0, 0, 0, 50)
+button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.BorderSizePixel = 2
+button.BorderColor3 = Color3.new(0, 1, 0)
+button.TextSize = 18
+button.Text = "Antiban"
+button.Parent = frame
+
+button.MouseButton1Click:Connect(function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.Health = 0
+        end
+    end
+end)
+ 
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 50)
+corner.Parent = button
+ 
+local button = Instance.new("TextButton")
+button.Parent = frame
+button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+button.Size = UDim2.new(0, 150, 0, 50)
+button.Position = UDim2.new(0, 0, 0, 100)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.BorderSizePixel = 2
+button.BorderColor3 = Color3.new(0, 1, 0)
+button.Text = "Teleport Chest"
+button.TextSize = 18
+ 
+local function teleportToChest()
+    local player = game.Players.LocalPlayer
+    local chest = nil
+    
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj.Name:lower():find("chest") then
+            chest = obj
+            break
+        end
+    end
+    
+    if player and chest then
+        player.Character.HumanoidRootPart.CFrame = chest.CFrame
+    end
+end
+ 
+button.MouseButton1Click:Connect(teleportToChest)
+ 
+local dragging = false
+local dragStart, startPos
+ 
+-- Khi nhấn ImageButton, hiển thị khung
+imageButton.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible  -- Chuyển đổi trạng thái hiển thị của khung
+end)
+ 
+-- Sự kiện bắt đầu kéo khung
+frame.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+        
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+    
+    -- Sự kiện kết thúc kéo khung
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    
+    -- Cập nhật vị trí khung khi kéo
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+        end
+    end)
